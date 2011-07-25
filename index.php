@@ -2,6 +2,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <?php
 require 'YouTubeBridge.php';
+require 'YouTubeCategories.php';
 
 $user = 'youtubeuser';
 $pw = 'youtubepassword';
@@ -39,6 +40,20 @@ foreach ($pl as $key => $val)
 		<label for='$key'> {$val['title']}</label>";
 }
 
+?>
+
+					<label for="custom">Create New Playlist</label>
+					<input type="text" name="custom" id="custom" />
+				</fieldset>
+				<fieldset>
+					<legend>Select Video Category</legend>
+<?php
+$cats = new YouTubeCategories();
+$ret = $cats->getCategories();
+foreach ($ret as $key => $val)
+{
+	echo "<input type='radio' name='category' value='$key' id='$key' title='$val' /> <label for='$key'>$val</label>";
+}
 ?>
 				</fieldset>
 				<input type="submit" name="submit" value="Select Video to Upload" />	
