@@ -1,5 +1,5 @@
 <?php
-class YouTubeCategories
+class CategoriesYouTubeUploader
 {
 	/***********************
 	 * CONSTANTS
@@ -17,19 +17,22 @@ class YouTubeCategories
 	 * ********************/
 	function __construct()
 	{
+		global $wgYTUIncludes;
+
 		$context = stream_context_create(array(
 			'http' => array('timeout' => 1) // Timeout in seconds
 		));
 
 		$xml = file_get_contents(self::URL, 0, $context);
 
+		$xmlfile = $wgYTUIncludes . self::XMLFILE;
 		if (empty($xml))
 		{ // timeout, fallback using file
-			$xml = file_get_contents(self::XMLFILE);
+			$xml = file_get_contents($xmlfile);
 		}
 		else
 		{
-			file_put_contents(self::XMLFILE, $xml);
+			file_put_contents($xmlfile, $xml);
 		}
 		$this->xml = simplexml_load_string($xml);
 	}
@@ -52,6 +55,7 @@ class YouTubeCategories
 				}
 			}
 		}
+		asort($ret);
 		return $ret;
 	}
 

@@ -1,9 +1,8 @@
 <?php
-require_once 'Zend/Loader.php';
 Zend_Loader::loadClass('Zend_Gdata_YouTube');
 Zend_Loader::loadClass('Zend_Gdata_ClientLogin');
 
-class YouTubeBridge
+class BridgeYouTubeUploader
 {
 	/***********************
 	 * CONSTANTS
@@ -147,4 +146,5 @@ class YouTubeBridge
 		return false;
 	}
 }
+
 ?>
