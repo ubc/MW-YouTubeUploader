@@ -46,7 +46,15 @@ class YouTubeBridge
 	public function getPlaylists()
 	{
 		$ret = array();
-		$plFeed = $this->yt->getPlaylistListFeed($this->user);
+		try
+		{
+			$plFeed = $this->yt->getPlaylistListFeed($this->user);
+		}
+		catch (Zend_Gdata_App_Exception $e)
+		{
+			return false;
+		}
+
 		foreach ($plFeed as $plEntry)
 		{
 			$id = $plEntry->getPlaylistId()->text;
@@ -57,13 +65,86 @@ class YouTubeBridge
 		return $ret;
 	}
 
-	public function uploadVideo($title, $desc, $tags)
+	public function uploadVideo($title, $desc, $tags, $cat)
 	{
 		$vid = new Zend_Gdata_Youtube_VideoEntry();
 
 		$vid->setVideoTitle($title);
 		$vid->setVideoDescription($desc);
-		$vid->setVideoTags($tags);
+		// TODO input checking
+		$vid->setVideoCategory($cat); // must be valid category
+		$vid->setVideoTags($tags); // must be comma-delimited, no whitespace in keywords
+		$tokenurl = 'http://gdata.youtube.com/action/GetUploadToken';
+		try 
+		{
+			$token = $this->yt->getFormUploadToken($vid, $tokenurl);
+		} 
+		catch (Zend_Gdata_App_Exception $e)
+		{
+			return false;
+		}
+		return $token;
+	}
+
+	public function addNewPlaylist($title, $desc)
+	{
+		$newpl = $this->yt->newPlaylistListEntry();
+		$newpl->title = $this->yt->newTitle()->setText($title);
+		$newpl->description = $this->yt->newDescription()->setText($desc);
+		$postLocation = 'http://gdata.youtube.com/feeds/api/users/default/playlists';
+		try 
+		{
+			$newpl = $this->yt->insertEntry($newpl, $postLocation, 'Zend_Gdata_YouTube_PlaylistListEntry');
+			// workaround for crappy Gdata API v2 support in the Zend library,
+			// it insists that $newpl is a v1 object, but var_dump shows that
+			// it's clearly a v2 object, wtf? This just forces v2 recognition
+			$newpl->setMajorProtocolVersion(2);
+		} 
+		catch (Zend_Gdata_App_Exception $e) 
+		{
+			return false;
+		}
+		return $newpl->getPlaylistId()->text;
+	}
+
+	public function addToPlaylist($videoid, $playlistid)
+	{
+		$feed = $this->getPlaylistEntry($playlistid);
+		if (!$feed)
+		{
+			return false;
+		}
+		$posturl = $feed->getPlaylistVideoFeedUrl();
+		$vid = $this->yt->getVideoEntry($videoid);
+
+		$plentry = $this->yt->newPlaylistListEntry($vid->getDOM()); 
+
+		try
+		{
+			$this->yt->insertEntry($plentry, $posturl);
+		}
+		catch (Zend_App_Exception $e)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	/***********************
+	 * PRIVATE METHODS
+	 * ********************/
+	private function getPlaylistEntry($playlistid)
+	{
+		$plfeed = $this->yt->getPlaylistListFeed($this->user);
+
+		foreach ($plfeed as $plentry)
+		{
+			if (strcmp($plentry->getPlaylistId()->text, $playlistid) == 0)
+			{
+				return $plentry;
+			}
+		}
+		return false;
 	}
 }
 ?>

@@ -30,22 +30,6 @@ $ytb = new YouTubeBridge($user, $pw, $key);
 					<input type="text" name="tags" id="tags" />
 				</fieldset>
 				<fieldset>
-					<legend>Add Video to Playlists</legend>
-<?php
-$pl = $ytb->getPlaylists();
-foreach ($pl as $key => $val)
-{
-	echo "<input type='checkbox' name='pl[]' id='$key' value='$key'
-		title='{$val['desc']}' />
-		<label for='$key'> {$val['title']}</label>";
-}
-
-?>
-
-					<label for="custom">Create New Playlist</label>
-					<input type="text" name="custom" id="custom" />
-				</fieldset>
-				<fieldset>
 					<legend>Select Video Category</legend>
 <?php
 $cats = new YouTubeCategories();

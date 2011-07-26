@@ -17,10 +17,29 @@ $ytb = new YouTubeBridge($user, $pw, $key);
 	<body>
 		<h2>Hello YouTube API!</h2>
 
-		<pre>
 <?php
-print_r($_POST);
+$title = $_POST['title'];
+$desc = $_POST['desc'];
+$tags = $_POST['tags'];
+$cat = $_POST['category'];
+
+$ret = $ytb->uploadVideo($title, $desc, $tags, $cat);
+if (!$ret)
+{
+	echo "<div class='ytb_error'>Error: Unable to get upload token.</div>";
+}
+
+#$nexturl = "http" . ((!empty($_SERVER['HTTPS'])) ? "s" : "") . "://".$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
+$nexturl = "http" . ((!empty($_SERVER['HTTPS'])) ? "s" : "") . "://".$_SERVER['SERVER_NAME']."/playlist.php";
+
+// build the form
+$form = '<form action="'. $ret['url'] .'?nexturl='. $nexturl .
+        '" method="post" enctype="multipart/form-data">'. 
+        '<input name="file" type="file"/>'. 
+        '<input name="token" type="hidden" value="'. $ret['token'] .'"/>'.
+        '<input value="Upload Video File" type="submit" />'. 
+        '</form>';
+echo $form;
 ?>
-		</pre>
 	</body>
 </html>
