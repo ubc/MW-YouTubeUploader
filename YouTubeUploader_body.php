@@ -53,6 +53,7 @@ class SpecialYouTubeUploader extends SpecialPage
 		}
 		else if ($wgRequest->getVal('status') && $wgRequest->getVal('id'))
 		{ // Step three, show playlist manipulation
+			$this->addLogEntry($wgRequest->getVal('id'));
 			$this->showStepThree();
 		}
 		else if ($wgRequest->wasPosted() && $wgRequest->getVal('plid'))
@@ -62,6 +63,10 @@ class SpecialYouTubeUploader extends SpecialPage
 		else if ($wgRequest->wasPosted())
 		{ // Step two, upload video
 			$this->showStepTwo();
+		}
+		else if (strcmp($wgRequest->getVal('view'), 'log') == 0)
+		{
+			$this->showLogs();
 		}
 		else
 		{ // Step one, input video metadata
@@ -288,6 +293,54 @@ class SpecialYouTubeUploader extends SpecialPage
 		global $wgOut;
 
 		$wgOut->addHTML("<p style='background-color:#F08080; padding:1em; text-align:center;'>$error</p>");
+	}
+
+	private function showLogs()
+	{
+		global $wgOut;
+		$dbr = wfGetDB(DB_SLAVE);
+		$rows = $dbr->select('ytu_log', array('ytu_id','ytu_user','ytu_timestamp','ytu_title','ytu_link'));
+		$table = "
+{| border='1'
+|-
+!ID
+!User
+!Timestamp
+!Title
+!Link";
+   	foreach ($rows as $row)
+   	{
+		$user = new User();
+		$user->setId($row->ytu_user);
+		$user->loadFromId();
+   		$table .= "
+|-
+|{$row->ytu_id}
+|{$user->getName()}
+|{$row->ytu_timestamp}
+|{$row->ytu_title}
+|{$row->ytu_link}";
+   	}
+   	$table .= "
+|}";
+		$wgOut->addWikiText($table);
+	}
+
+	private function addLogEntry($vidid)
+	{
+		global $wgUser;
+
+		$vid = $this->ytb->getVideo($vidid);
+		$dbw = wfGetDB(DB_MASTER);
+		$fields = array (
+			'ytu_id'	=> $vidid,
+			'ytu_user'	=> $wgUser->getID(),
+			'ytu_timestamp' => $dbw->timestamp( time() ),
+			'ytu_title' => $vid->getVideoTitle(),
+			'ytu_link'	=> 	 $vid->getVideoWatchPageUrl()
+		);
+		$dbw->insert( 'ytu_log', $fields, __METHOD__, array('IGNORE'));
+
 	}
 
 }
