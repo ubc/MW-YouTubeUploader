@@ -234,6 +234,11 @@ class SpecialYouTubeUploader extends SpecialPage
 		}
 
 		$videoEntry = $this->ytb->getVideo($id);
+		if (!$videoEntry)
+		{
+			$this->showError("youtubeuploader-uploadfailed");
+			return;
+		}
 		$wgOut->addWikiText(wfMsg('youtubeuploader-done') . " {$videoEntry->getVideoWatchPageUrl()}");
 		$wgOut->addWikiText("==".wfMsg('youtubeuploader-vidinfo')."==");
 		$wgOut->addWikiText(wfMsg('youtubeuploader-title').": {$videoEntry->getVideoTitle()}");
