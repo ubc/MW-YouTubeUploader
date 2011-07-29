@@ -44,7 +44,6 @@ class BridgeYouTubeUploader
 
 	public function getPlaylists()
 	{
-		$ret = array();
 		try
 		{
 			$plFeed = $this->yt->getPlaylistListFeed($this->user);
@@ -54,11 +53,23 @@ class BridgeYouTubeUploader
 			return false;
 		}
 
+		$titles = array();
+		$descs = array();
 		foreach ($plFeed as $plEntry)
 		{
 			$id = $plEntry->getPlaylistId()->text;
-			$ret[$id]['title'] = $plEntry->title->text;
-			$ret[$id]['desc'] = $plEntry->getDescription();
+			$titles[$id] = $plEntry->title->text;
+			$descs[$id] = $plEntry->description->text;
+		}
+
+		// we want the playlists to appear in alphabetical order
+		natcasesort($titles);
+
+		$ret = array();
+		foreach ($titles as $key => $val)
+		{
+			$ret[$key]['title'] = $val;
+			$ret[$key]['desc'] = $descs[$key];
 		}
 
 		return $ret;
