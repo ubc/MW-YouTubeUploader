@@ -26,6 +26,7 @@ $messages['en'] = array(
 	'youtubeuploader-vidinfo' => 'Video Information',
 	'youtubeuploader-pl' => 'Playlists',
 	'youtubeuploader-newpl-error' => 'Error: Unable to create new playlist!',
+	'youtubeuploader-uploadfailed' => 'Error: The video that was just uploaded does not appear to have made it to YouTube.',
 );
 
 ?>
