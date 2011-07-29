@@ -114,7 +114,16 @@ class BridgeYouTubeUploader
 			return false;
 		}
 		$posturl = $feed->getPlaylistVideoFeedUrl();
+		foreach ($this->yt->getPlaylistVideoFeed($posturl) as $val)
+		{ // check for duplicates
+			if (strcmp($val->getVideoId(), $videoid) == 0)
+				return $feed; // duplicate detected
+		}
 		$vid = $this->yt->getVideoEntry($videoid);
+		if (!$vid)
+		{
+			return false;
+		}
 
 		$plentry = $this->yt->newPlaylistListEntry($vid->getDOM()); 
 
@@ -126,7 +135,20 @@ class BridgeYouTubeUploader
 		{
 			return false;
 		}
-		return true;
+		return $feed;
+	}
+
+	public function getVideo($videoid)
+	{
+		try
+		{
+			$videoEntry = $this->yt->getVideoEntry($videoid);
+		}
+		catch (Zend_App_Exception $e)
+		{
+			return false;
+		}
+		return $videoEntry;
 	}
 
 	/***********************
