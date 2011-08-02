@@ -12,6 +12,8 @@ CREATE TABLE `ytu_log` (
 		`ytu_link` text
 		);
 
+3. The file 'includes/categories.cat' needs to be writeable by the Apache user. This file has YouTube category information in it and serves as a fallback in case we can't get the category information directly from YouTube.
+
 DEPENDENCIES
 
 Requires the SimpleXML parser, this should be built in to most PHP distributions. On CentOS, need to install the package 'php-xml'.
