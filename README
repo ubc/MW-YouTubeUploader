@@ -1,0 +1,17 @@
+INSTALLATION
+
+1. Add to LocalSettings.php
+require_once('extensions/YouTubeUploader/YouTubeUploader.php');
+
+2. Create this table in database:
+CREATE TABLE `ytu_log` (
+		`ytu_id` VARCHAR(256) NOT NULL PRIMARY KEY,
+		`ytu_user` INT,
+		`ytu_timestamp` CHAR(14),
+		`ytu_title` text,
+		`ytu_link` text
+		);
+
+DEPENDENCIES
+
+Requires the SimpleXML parser, this should be built in to most PHP distributions. On CentOS, need to install the package 'php-xml'.
