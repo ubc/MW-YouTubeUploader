@@ -1,9 +1,11 @@
 INSTALLATION
 
-1. Add to LocalSettings.php
+1. Change the $wgYTU_User, $wgYTU_Password, and $wgYTU_APIKey in YouTubeUploader.php.
+
+2. Add to LocalSettings.php
 require_once('extensions/YouTubeUploader/YouTubeUploader.php');
 
-2. Create this table in database:
+3. Create this table in database:
 CREATE TABLE `ytu_log` (
 		`ytu_id` VARCHAR(256) NOT NULL PRIMARY KEY,
 		`ytu_user` INT,
@@ -12,7 +14,7 @@ CREATE TABLE `ytu_log` (
 		`ytu_link` text
 		);
 
-3. The file 'includes/categories.cat' needs to be writeable by the Apache user. This file has YouTube category information in it and serves as a fallback in case we can't get the category information directly from YouTube.
+4. The file 'includes/categories.cat' needs to be writeable by the Apache user. This file has YouTube category information in it and serves as a fallback in case we can't get the category information directly from YouTube.
 
 DEPENDENCIES
 
