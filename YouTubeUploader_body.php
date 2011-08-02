@@ -130,10 +130,15 @@ class SpecialYouTubeUploader extends SpecialPage
 
 		$cats = new CategoriesYouTubeUploader();
 		$ret = $cats->getCategories();
-		$catinputs = "<option value='' selected='true'></option>";
+		$catinputs = "";
 		foreach ($ret as $key => $val)
 		{
-			$catinputs .= "<option value='$key' id='$key'>$val</option>";
+			$catinputs .= "<option value='$key' id='$key' ";
+			if (strcmp($key, "Education") == 0)
+			{ // make education the default category
+				$catinputs .= "selected='true'";
+			}
+			$catinputs .= ">$val</option>";
 		}
 
 		$wgOut->addHTML("
@@ -146,31 +151,24 @@ class SpecialYouTubeUploader extends SpecialPage
 				<div class='desc'>
 				<span>".wfMsg('youtubeuploader-titlelimit')."</span>
 				<br />
-				<!---<span>".wfMsg('youtubeuploader-titlelimit-adv')."</span>				
-				<br />--->
 				</div>
 				<label for='desc'>".wfMsg('youtubeuploader-desc')."</label>
 				<textarea title='Description for the video' name='desc' id='desc'></textarea>
 				
 				<div class ='desc'>
-				<!---<span>".wfMsg('youtubeuploader-desclimit')."</span>
-				<br />--->
-				<span>".wfMsg('youtubeuploader-desclimit-adv')."</span>
+				<span>".wfMsg('youtubeuploader-desclimit')."</span>
 				<br />
 				</div>
 				<label for='tags'>".wfMsg('youtubeuploader-tags')."</label>
 				<input type='text' name='tags' id='tags' />
 				<br />
 				<div class = 'desc'>
-				<!---<span>".wfMsg('youtubeuploader-taglimit')."</span>
-				<br />--->
-				<span>".wfMsg('youtubeuploader-taglimit-adv')."</span>
+				<span>".wfMsg('youtubeuploader-taglimit')."</span>
 				<br />
 				</div>
 				<label for='category'>".wfMsg('youtubeuploader-cat')."</label>
 				<select name='category' id='category'>
 				$catinputs
-			
 				</select>
 				<br/>
 					<div class ='submit'>
@@ -191,9 +189,44 @@ class SpecialYouTubeUploader extends SpecialPage
 		$tags = $wgRequest->getVal('tags');
 		$cat = $wgRequest->getVal('category');
 
+		$title = $this->validate($title, 100);
+		if (!$title)
+		{
+			$this->showError(wfMsg('youtubeuploader-titlelimit-exceed') . wfMsg('youtubeuploader-titlelimit'));
+			return;
+		}
+		$desc = $this->validate($desc, 5000);
+		if (!$desc)
+		{
+			$this->showError(wfMsg('youtubeuploader-desclimit-exceed') . wfMsg('youtubeuploader-desclimit'));
+			return;
+		}
+		$tags = $this->validate($tags, 500);
+		if (!$tags)
+		{
+			$this->showError(wfMsg('youtubeuploader-taglimit-exceed') . wfMsg('youtubeuploader-taglimit'));
+			return;
+		}
+		$tmptags = explode(',', $tags);
+		foreach($tmptags as $val)
+		{
+			$val = trim($val);
+			$res = $this->validate($val, 30);
+			if (!$res)
+			{
+				$this->showError(wfMsg('youtubeuploader-tagtoolong') . "$val");
+				return;
+			}
+			if (mb_strlen($res, 'latin1') < 2)
+			{
+				$this->showError(wfMsg('youtubeuploader-tagtooshort') . "$val");
+				return;
+			}
+		}
 		$ret = $this->ytb->uploadVideo($title, $desc, $tags, $cat);
 		if (!$ret)
-		{ // TODO ERROR
+		{ 
+			$this->showError(wfMsg('youtubeuploader-token-error'));
 			return;
 		}
 
@@ -204,8 +237,12 @@ class SpecialYouTubeUploader extends SpecialPage
 			'" method="post" enctype="multipart/form-data">'. 
 			'<input name="file" type="file"/>'. 
 			'<input name="token" type="hidden" value="'. $ret['token'] .'"/>'.
-			'<input value="'.wfMsg('youtubeuploader-upload').'" type="submit" />'. 
-			'</form>';
+			'<input value="'.wfMsg('youtubeuploader-upload').'" type="submit" 
+			onclick="document.getElementById(\'youtubeuploader-uploading\').style.display = \'block\';"
+			/>'. 
+			'</form>'.
+			'<p id="youtubeuploader-uploading" style="display:none;font-size: 1.1em;font-weight:bold;">'
+			.wfMsg('youtubeuploader-uploading-status').'</p>';
 		$wgOut->addHTML($form);
 	}
 
@@ -279,7 +316,7 @@ class SpecialYouTubeUploader extends SpecialPage
 			if ($newplid)
 			{
 				$this->ytb->addToPlaylist($id, $newplid);
-				$pllist[$title] = $desc;
+				$pllist[$newplid] = $desc;
 			}
 			else
 			{
@@ -297,7 +334,7 @@ class SpecialYouTubeUploader extends SpecialPage
 					$this->showError("Error: Unable to add to playlist");
 					break;
 				}
-				$pllist[$ret->title->text] = $ret->description->text;
+				$pllist[$ret->title->text] = $plid;
 			}
 		}
 
@@ -317,6 +354,7 @@ class SpecialYouTubeUploader extends SpecialPage
 		foreach ($pllist as $key => $val)
 		{
 			$plinfo .= "* ".wfMsg('youtubeuploader-title').": $key\n";
+			$plinfo .= "** https://www.youtube.com/view_play_list?p=$val\n";
 		}
 		$wgOut->addWikiText($plinfo);
 		
@@ -405,6 +443,25 @@ class SpecialYouTubeUploader extends SpecialPage
 		);
 		$dbw->insert( 'ytu_log', $fields, __METHOD__, array('IGNORE'));
 
+	}
+
+	/**
+	 * Cannot have any of the characters '<>' in the input and must not be
+	 * great than length $len. Would be nice if we can use filter_var, but
+	 * CentOS's php version doesn't support it.
+	 */
+	private function validate($var, $len)
+	{
+		if (preg_match('/[<>]/', $var))
+		{
+			return false;
+		}
+		else if (mb_strlen($var, 'latin1') > $len)
+		{
+			return false;
+		}
+
+		return $var;
 	}
 
 }
