@@ -49,7 +49,7 @@ class SpecialYouTubeUploader extends SpecialPage
 		{ // Step two failed, show error message
 			$status = $wgRequest->getVal('status');
 			$code = $wgRequest->getVal('code');
-			$wgOut->addHTML("<p>Error, uploaded failed with code: $code status: $status</p>");
+			$this->showError(wfMsg('youtubeuploader-upload-failed') . $code . " " . $status);
 			return;
 		}
 		else if ($wgRequest->getVal('status') && $wgRequest->getVal('id'))
@@ -189,6 +189,11 @@ class SpecialYouTubeUploader extends SpecialPage
 		$tags = $wgRequest->getVal('tags');
 		$cat = $wgRequest->getVal('category');
 
+		if (empty($title))
+		{
+			$this->showError(wfMsg('youtubeuploader-title-empty'));
+			return;
+		}
 		$title = $this->validate($title, 100);
 		if (!$title)
 		{
@@ -196,13 +201,13 @@ class SpecialYouTubeUploader extends SpecialPage
 			return;
 		}
 		$desc = $this->validate($desc, 5000);
-		if (!$desc)
+		if (!$desc && !empty($desc))
 		{
 			$this->showError(wfMsg('youtubeuploader-desclimit-exceed') . wfMsg('youtubeuploader-desclimit'));
 			return;
 		}
 		$tags = $this->validate($tags, 500);
-		if (!$tags)
+		if (!$tags && !empty($tags))
 		{
 			$this->showError(wfMsg('youtubeuploader-taglimit-exceed') . wfMsg('youtubeuploader-taglimit'));
 			return;
@@ -210,6 +215,8 @@ class SpecialYouTubeUploader extends SpecialPage
 		$tmptags = explode(',', $tags);
 		foreach($tmptags as $val)
 		{
+			if (empty($val))
+				continue;
 			$val = trim($val);
 			$res = $this->validate($val, 30);
 			if (!$res)
@@ -256,7 +263,7 @@ class SpecialYouTubeUploader extends SpecialPage
 		$pl = $this->ytb->getPlaylists();
 		if (!$pl)
 		{
-			$wgOut->addHTML("<p>Error: Failed to get playlists.</p>");
+			$this->showError(wfMsg('youtubeuploader-plretrival-failed'));
 			return;
 		}
 
@@ -267,14 +274,14 @@ class SpecialYouTubeUploader extends SpecialPage
 			<fieldset id = 'third'>
 			<legend>Playlist Configuration</legend>
 			<div>
-			<span>".wfmsg('youtubeuploader-addpl')."</span>";
+			<span>".wfMsg('youtubeuploader-addpl')."</span>";
 		foreach ($pl as $key => $val)
 		{
 			$form .= "
 			<div style='margin-left:1em;'>
 				<input type='checkbox' name='pl[]' id='$key' value='$key'
 				title='{$val['desc']}' />
-				<label for='$key'> {$val['title']}</label></div>";
+				<label for='$key'><a href='https://www.youtube.com/view_play_list?p=$key'>{$val['title']}</a></label></div>";
 		}
 
 		$form .= "
@@ -331,7 +338,7 @@ class SpecialYouTubeUploader extends SpecialPage
 				$ret = $this->ytb->addToPlaylist($id, $plid);
 				if (!$ret)
 				{
-					$this->showError("Error: Unable to add to playlist");
+					$this->showError(wfMsg('youtubeuploader-addpl-error'));
 					break;
 				}
 				$pllist[$ret->title->text] = $plid;
