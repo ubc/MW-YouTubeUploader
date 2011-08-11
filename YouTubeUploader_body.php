@@ -21,6 +21,7 @@ class SpecialYouTubeUploader extends SpecialPage
 
 	function execute( $par ) 
 	{
+		# Wikipedia global variables
 		global $wgRequest, $wgOut, $wgMemc, $wgUser;
 		global $wgYTU_User, $wgYTU_Password, $wgYTU_APIKey;
 		global $wgYTUIncludes;
@@ -353,7 +354,10 @@ class SpecialYouTubeUploader extends SpecialPage
 			$this->showError("youtubeuploader-uploadfailed");
 			return;
 		}
-		$wgOut->addWikiText(wfMsg('youtubeuploader-done') . " {$videoEntry->getVideoWatchPageUrl()}");
+		$watchurl = $videoEntry->getVideoWatchPageUrl();
+		$watchurl = substr($watchurl, 0, strpos($watchurl, '&'));
+
+		$wgOut->addWikiText(wfMsg('youtubeuploader-done') . " $watchurl");
 		$wgOut->addWikiText("==".wfMsg('youtubeuploader-vidinfo')."==");
 		$wgOut->addWikiText(wfMsg('youtubeuploader-title').": <nowiki>{$videoEntry->getVideoTitle()}</nowiki>");
 		$wgOut->addWikiText(wfMsg('youtubeuploader-cat').": {$videoEntry->getVideoCategory()}");
