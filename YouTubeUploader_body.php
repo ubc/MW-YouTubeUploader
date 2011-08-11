@@ -355,14 +355,14 @@ class SpecialYouTubeUploader extends SpecialPage
 		}
 		$wgOut->addWikiText(wfMsg('youtubeuploader-done') . " {$videoEntry->getVideoWatchPageUrl()}");
 		$wgOut->addWikiText("==".wfMsg('youtubeuploader-vidinfo')."==");
-		$wgOut->addWikiText(wfMsg('youtubeuploader-title').": {$videoEntry->getVideoTitle()}");
+		$wgOut->addWikiText(wfMsg('youtubeuploader-title').": <nowiki>{$videoEntry->getVideoTitle()}</nowiki>");
 		$wgOut->addWikiText(wfMsg('youtubeuploader-cat').": {$videoEntry->getVideoCategory()}");
 		$wgOut->addWikiText(wfMsg('youtubeuploader-tags').": ".implode(", ", $videoEntry->getVideoTags()));
 		$wgOut->addWikiText(wfMsg('youtubeuploader-pl').": ");
 		$plinfo = "";
 		foreach ($pllist as $key => $val)
 		{
-			$plinfo .= "* ".wfMsg('youtubeuploader-title').": $key\n";
+			$plinfo .= "* ".wfMsg('youtubeuploader-title').": <nowiki>$key</nowiki>\n";
 			$plinfo .= "** https://www.youtube.com/view_play_list?p=$val\n";
 		}
 		$wgOut->addWikiText($plinfo);
