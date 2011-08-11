@@ -429,7 +429,7 @@ class SpecialYouTubeUploader extends SpecialPage
 |{$row->ytu_id}
 |{$user->getName()}
 |{$row->ytu_timestamp}
-|{$row->ytu_title}
+|<nowiki>{$row->ytu_title}</nowiki>
 |{$row->ytu_link}";
    	}
    	$table .= "
