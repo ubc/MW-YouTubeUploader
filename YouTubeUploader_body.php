@@ -27,13 +27,15 @@ class SpecialYouTubeUploader extends SpecialPage
 
 		$this->setHeaders();
 		$this->addStyle();
-		# Check permissions
-		if( !$wgUser->isAllowed( 'upload' ) ) {
+		# Check permissions, make sure the user is in the youtube OR sysop group
+		$isYouTubeEduGroup = ( in_array('youtube', $wgUser->getGroups()) || in_array('sysop', $wgUser->getGroups()) );
+		if(!$isYouTubeEduGroup ) {
 			if( !$wgUser->isLoggedIn() ) {
 				$wgOut->showErrorPage( 'uploadnologin', 'uploadnologintext' );
-			}
-			else {
-				$wgOut->permissionRequired( 'upload' );
+			}else{
+				if(!$isYouTubeEduGroup){
+					$wgOut->showErrorPage( 'badaccess', 'badaccess-groups', $result = array('YouTube') );
+				}
 			}
 			return;
 		}

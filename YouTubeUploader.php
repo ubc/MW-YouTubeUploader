@@ -36,6 +36,6 @@ $wgYTUIncludes = $dir . 'includes/';
 $wgAutoloadClasses['Zend_Loader'] = $wgYTUIncludes . 'Zend/Loader.php';
 $wgAutoloadClasses['BridgeYouTubeUploader'] = $wgYTUIncludes . 'BridgeYouTubeUploader.php';
 $wgAutoloadClasses['CategoriesYouTubeUploader'] = $wgYTUIncludes . 'CategoriesYouTubeUploader.php';
-$wgSpecialPageGroupes['YouTubeUploader'] = 'other';
+$wgSpecialPageGroups['YouTubeUploader'] = 'other';
 
 ?>
