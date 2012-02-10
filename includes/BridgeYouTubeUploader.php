@@ -75,7 +75,7 @@ class BridgeYouTubeUploader
 		return $ret;
 	}
 
-	public function uploadVideo($title, $desc, $tags, $cat)
+	public function uploadVideo($title, $desc, $tags, $cat, $unlist)
 	{
 		$vid = new Zend_Gdata_Youtube_VideoEntry();
 
@@ -84,6 +84,18 @@ class BridgeYouTubeUploader
 		// TODO input checking
 		$vid->setVideoCategory($cat); // must be valid category
 		$vid->setVideoTags($tags); // must be comma-delimited, no whitespace in keywords
+
+		// check unlisted video option
+		if (!empty($unlist))
+		{ // set as unlisted video
+			$accessControlElement = new Zend_Gdata_App_Extension_Element('yt:accessControl', 'yt', 'http://gdata.youtube.com/schemas/2007', ''); 
+			$accessControlElement->extensionAttributes = array(
+				array('namespaceUri' => '', 'name' => 'action', 'value' => 'list'),
+				array('namespaceUri' => '', 'name' => 'permission', 'value' => 'denied')); 
+
+			$vid->setExtensionElements(array($accessControlElement));
+		}
+
 		$tokenurl = 'http://gdata.youtube.com/action/GetUploadToken';
 		try 
 		{
@@ -91,6 +103,7 @@ class BridgeYouTubeUploader
 		} 
 		catch (Zend_Gdata_App_Exception $e)
 		{
+			#echo $e->getMessage();
 			return false;
 		}
 		return $token;

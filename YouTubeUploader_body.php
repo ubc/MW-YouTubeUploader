@@ -148,34 +148,47 @@ class SpecialYouTubeUploader extends SpecialPage
 		<form method='POST' action='{$spTitle->getFullURL()}'>
 			<fieldset id ='first'>
 				<legend>Video Metadata</legend>
+				
 				<label for='ytu_title'>".wfMsg('youtubeuploader-title')."</label>
 				<input type='text' name='ytu_title' id='ytu_title' />
 				<br />
 				<div class='desc'>
-				<span>".wfMsg('youtubeuploader-titlelimit')."</span>
-				<br />
+					<span>".wfMsg('youtubeuploader-titlelimit')."</span>
+					<br />
 				</div>
+
 				<label for='desc'>".wfMsg('youtubeuploader-desc')."</label>
 				<textarea title='Description for the video' name='desc' id='desc'></textarea>
-				
 				<div class ='desc'>
-				<span>".wfMsg('youtubeuploader-desclimit')."</span>
-				<br />
+					<span>".wfMsg('youtubeuploader-desclimit')."</span>
+					<br />
 				</div>
+
 				<label for='tags'>".wfMsg('youtubeuploader-tags')."</label>
 				<input type='text' name='tags' id='tags' />
 				<br />
 				<div class = 'desc'>
-				<span>".wfMsg('youtubeuploader-taglimit')."</span>
-				<br />
+					<span>".wfMsg('youtubeuploader-taglimit')."</span>
+					<br />
 				</div>
+
 				<label for='category'>".wfMsg('youtubeuploader-cat')."</label>
 				<select name='category' id='category'>
 				$catinputs
 				</select>
-				<br/>
-					<div class ='submit'>
-				<input type='submit' name='submit' value='".wfMsg('youtubeuploader-submit')."' />	
+				<div class='desc'>
+					<br />
+				</div>
+
+				<label for='unlisted'>".wfMsg('youtubeuploader-unlisted')."</label>
+				<input type='checkbox' name='unlisted' id='unlisted' />
+				<div class='desc'>
+					<span>".wfMsg('youtubeuploader-unlisted-desc')."</span>
+					<br/>
+				</div>
+
+				<div class ='submit'>
+					<input type='submit' name='submit' value='".wfMsg('youtubeuploader-submit')."' />	
 				</div>
 			</fieldset>
 		</form>");
@@ -191,6 +204,7 @@ class SpecialYouTubeUploader extends SpecialPage
 		$desc = $wgRequest->getVal('desc');
 		$tags = $wgRequest->getVal('tags');
 		$cat = $wgRequest->getVal('category');
+		$unlist = $wgRequest->getVal('unlisted');
 
 		if (empty($title))
 		{
@@ -233,7 +247,7 @@ class SpecialYouTubeUploader extends SpecialPage
 				return;
 			}
 		}
-		$ret = $this->ytb->uploadVideo($title, $desc, $tags, $cat);
+		$ret = $this->ytb->uploadVideo($title, $desc, $tags, $cat, $unlist);
 		if (!$ret)
 		{ 
 			$this->showError(wfMsg('youtubeuploader-token-error'));

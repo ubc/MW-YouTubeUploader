@@ -35,6 +35,8 @@ $messages['en'] = array(
 	'youtubeuploader-tagtooshort' => 'This tag is too short, needs to be more than 2 characters: ',
 	'youtubeuploader-plretrival-failed' => 'Error: Failed to retrieve playlists.',
 	'youtubeuploader-upload-failed' => 'Upload failed with code: ',
+	'youtubeuploader-unlisted' => 'Unlisted: ',
+	'youtubeuploader-unlisted-desc' => 'If selected, the video will only be accessible by direct linking. The video will not be visible in searches.',
 );
 
 $messages['lol'] = array(
@@ -72,5 +74,7 @@ $messages['lol'] = array(
 	'youtubeuploader-tagtooshort' => 'tagz too short',
 	'youtubeuploader-plretrival-failed' => 'nowai: u no haz playliz',
 	'youtubeuploader-upload-failed' => 'uplode fail wif code: ',
+	'youtubeuploader-unlisted' => 'iz invizible: ',
+	'youtubeuploader-unlisted-desc' => 'no see veedeo wifout direk linkz',
 );
 ?>
