@@ -15,7 +15,6 @@ class BridgeYouTubeUploader
 	/***********************
 	 * PRIVATE MEMBERS
 	 * ********************/
-	private $user;
 	private $yt; // Zend Youtube library object
 	private $abc;
 
@@ -25,8 +24,6 @@ class BridgeYouTubeUploader
 	 * ********************/
 	function __construct($user, $pw, $key)
 	{
-		$this->user = $user;
-
 		$httpClient = 
 			Zend_Gdata_ClientLogin::getHttpClient(
 				$username = $user,
@@ -46,7 +43,7 @@ class BridgeYouTubeUploader
 	{
 		try
 		{
-			$plFeed = $this->yt->getPlaylistListFeed($this->user);
+			$plFeed = $this->yt->getPlaylistListFeed('default');
 		}
 		catch (Zend_Gdata_App_Exception $e)
 		{
@@ -180,7 +177,7 @@ class BridgeYouTubeUploader
 	 * ********************/
 	private function getPlaylistEntry($playlistid)
 	{
-		$plfeed = $this->yt->getPlaylistListFeed($this->user);
+		$plfeed = $this->yt->getPlaylistListFeed('default');
 
 		foreach ($plfeed as $plentry)
 		{
