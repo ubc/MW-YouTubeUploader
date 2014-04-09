@@ -43,7 +43,7 @@ class BridgeYouTubeUploader
 	{
 		try
 		{
-			$plFeed = $this->yt->getPlaylistListFeed('default');
+            $plFeed = $this->getAllPlaylistFeed();
 		}
 		catch (Zend_Gdata_App_Exception $e)
 		{
@@ -177,7 +177,7 @@ class BridgeYouTubeUploader
 	 * ********************/
 	private function getPlaylistEntry($playlistid)
 	{
-		$plfeed = $this->yt->getPlaylistListFeed('default');
+		$plfeed = $this->getAllPlaylistFeed();
 
 		foreach ($plfeed as $plentry)
 		{
@@ -188,6 +188,15 @@ class BridgeYouTubeUploader
 		}
 		return false;
 	}
+
+    private function getAllPlaylistFeed()
+    {
+        $plFeed = $this->yt->getPlaylistListFeed('default');
+        // by default, a feed is limited to 25 results, so we need
+        // to indicate that we want all the results
+        $plFeed = $this->yt->retrieveAllEntriesForFeed($plFeed);
+        return $plFeed;
+    }
 }
 
 ?>
